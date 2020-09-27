@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ImageCrop</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="/assets/jquery.Jcrop.css">
+    <link rel="stylesheet" href="/assets/cropper.css">
+    <%#= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%#= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <style>
+      .jcrop-holder{margin: 0 auto;}
+      /*#preview_img_cropper{width: 100%;}
+      .cropper-bg{width: 100% !important}*/
+      #preview-pane .preview-container {
+        width: 200px;
+        height: 200px;
+        overflow: hidden;
+      }
+
+    .img-preview{    
+      float: left;
+      margin-bottom: .5rem;
+      margin-right: .5rem;
+      overflow: hidden;
+      height: 200px;
+      width: 200px;
+    }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <ul>
+        <li><%= link_to "Crop using Jcrop", image_crop_index_path %></li>
+        <li><%= link_to "Crop using Cropper", cropper_index_path %></li>
+      </ul>
+    </div>
+    <%= yield %>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/assets/jquery.actual.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="/assets/cropper_min.js"></script>
+    <script src="/assets/jquery.Jcrop.js"></script>
+    
+    <!-- <script>
+        $('#preview_img').Jcrop();
+    </script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+          //Image file input change event
+          $("#image").on('change', function(){
+            readImageData(this);//Call image read and render function
+          });
+      });
+       
+      function readImageData(imgData){
+        if (imgData.files && imgData.files[0]) {
+          var readerObj = new FileReader();
+          
+          readerObj.onload = function (element) {
+              $('#preview_img').attr('src', element.target.result);
+          }
+          
+          readerObj.readAsDataURL(imgData.files[0]);
+        }
+      }
+    </script> -->
+
+    <!-- JS for JCrop cropping Starts -->
+    <script type="text/javascript">
+      jQuery(function($){
+        var jcrop_api;
+        $preview = $('#preview-pane');
+        $pcnt = $('#preview-pane .preview-container');
+        $pimg = $('#preview-pane .preview-container img');
+        var boundx;
+        var boundy;
+
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+        var box_width = $("#myModal .preview_box").actual('width');
+        $("#image").on('change', function(){
+          readImageData(this);//Call image read and render function
+          $('#myModal').modal("show");
+        });
+        function readImageData(imgData){
+          if (imgData.files && imgData.files[0]) {
+            var readerObj = new FileReader();
+            
+            readerObj.onload = function (element) {
+              $('#preview_img').attr('src', element.target.result);
+              $('.jcrop-preview').attr('src', element.target.result); 
+              $('#preview_img').Jcrop({                
+                setSelect : [0,0,150,150],
+                onSelect: updateCoords,
+                onChange: updateCoords,
+                aspectRatio : 100/100,
+                minSize : [150,150],
+                maxSize : [200,200],
+                keySupport: false,
+                onRelease : releaseCheck,                
+                boxWidth: box_width
+                // aspectRatio: xsize / ysize
+              },function(){
+                // Use the API to get the real image size
+                var bounds = this.getBounds();
+                boundx = bounds[0];
+                boundy = bounds[1];
+                // Store the API in the jcrop_api variable
+                jcrop_api = this;
+              });
+              jcrop_api.setImage(element.target.result);
+              jcrop_api.setOptions({ 
+                setSelect : [0,0,150,150],
+                onSelect: updateCoords,
+                onChange: updateCoords,
+                aspectRatio : 100/100,
+                minSize : [150,150],
+                maxSize : [200,200],
+                keySupport: false,
+                onRelease : releaseCheck,                
+                boxWidth: box_width
+              });
+            }
+            
+            readerObj.readAsDataURL(imgData.files[0]);
+          }
+        }
+
+        function updateCoords(c)
+        {
+          debugger
+          $('#x1').val(c.x);
+          $('#y1').val(c.y);
+          $('#x2').val(c.x2);
+          $('#y2').val(c.y2);
+          $('#w').val(c.w);
+          $('#h').val(c.h);
+
+          if (parseInt(c.w) > 0)
+          {
+            var rx = xsize / c.w;
+            var ry = ysize / c.h;
+
+            $pimg.css({
+              width: Math.round(rx * boundx) + 'px',
+              height: Math.round(ry * boundy) + 'px',
+              marginLeft: '-' + Math.round(rx * c.x) + 'px',
+              marginTop: '-' + Math.round(ry * c.y) + 'px'
+            });
+          }
+        };
+        function updatePreview(c)
+        {
+          
+        };
+
+        function releaseCheck() {
+          this.setOptions({ setSelect: [100,100,0,0] });
+        };
+      });
+    </script>
+
+    <!-- <script type="text/javascript">
+      $("#cropImage").click(function(){
+        $('#myModal').modal("hide");
+      })
+    </script> -->
+    <!-- JS for JCrop cropping Ends -->
+
+    <!-- JS for Cropper cropping Starts -->
+    <!-- <script>
+      jQuery(function($){
+        var box_width = $("#myModal .preview_box_cropper").actual('width');
+        $("#image").on('change', function(){
+          debugger;
+          readImageData(this);//Call image read and render function
+          $('#myModal').modal("show");
+        });
+        function readImageData(imgData){
+          debugger
+          if (imgData.files && imgData.files[0]) {
+            var file = imgData.files[0];
+            var readerObj = new FileReader();
+            
+            readerObj.onload = function (element) {
+              $('#preview_img_cropper').attr('src', element.target.result);
+              var image = document.querySelector('#preview_img_cropper');
+              var cropper = new Cropper(image, {
+                movable: false,
+                zoomable: false,
+                rotatable: false,
+                scalable: false
+              });
+              image.src = uploadedImageURL = URL.createObjectURL(file);
+              cropper.destroy();
+              cropper = new Cropper(image, {
+                movable: false,
+                zoomable: false,
+                rotatable: false,
+                scalable: false
+              });  
+            }
+            readerObj.readAsDataURL(imgData.files[0]);
+          }
+        }
+      });
+    </script> -->
+    <script>
+      window.onload = function () {
+        'use strict';
+
+        var Cropper = window.Cropper;
+        var URL = window.URL || window.webkitURL;
+        var container = document.querySelector('#preview_boxId_cropper');
+        var image = document.querySelector('#preview_img_cropper');
+        var box_width = $("#myModal .preview_box_cropper").actual('width');
+        var box_height = $("#myModal .preview_box_cropper").actual('height');
+        var options = {
+          aspectRatio: 1 / 1,
+          preview: '.img-preview',
+          modal: true,
+          guides: true,
+          autoCrop: true,
+          dragCrop: true,
+          movable: true,
+          resizable: true,
+          zoomable: true,
+          touchDragZoom: true,
+          mouseWheelZoom: true,
+          minContainerWidth: box_width,
+          minContainerHeight: box_height,
+          // maxCanvasHeight: box_height,
+          
+          // ready: function (e) {
+          //   console.log(e.type);
+          // },
+          // cropstart: function (e) {
+          //   console.log(e.type, e.detail.action);
+          // },
+          // cropmove: function (e) {
+          //   console.log(e.type, e.detail.action);
+          // },
+          // cropend: function (e) {
+          //   console.log(e.type, e.detail.action);
+          // },
+          crop: function (e) {
+            var data = e.detail;
+
+            $('#xc').val(data.x);
+            $('#yc').val(data.y);
+            $('#wc').val(data.width);
+            $('#hc').val(data.height);
+            
+          },
+          // zoom: function (e) {
+          //   console.log(e.type, e.detail.ratio);
+          // }
+        };
+        var cropper = new Cropper(image, options);
+        var originalImageURL = image.src;
+        // var uploadedImageType = 'image/jpeg';
+        // var uploadedImageName = 'cropped.jpg';
+        var uploadedImageURL; 
+
+        // Import image
+        var inputImage = document.getElementById('image');
+
+        if (URL) {
+          inputImage.onchange = function () {
+            var files = this.files;
+            var file;
+
+            if (cropper && files && files.length) {
+              file = files[0];
+
+              if (/^image\/\w+/.test(file.type)) {
+                image.src = uploadedImageURL = URL.createObjectURL(file);
+                cropper.destroy();
+                cropper = new Cropper(image, options);
+                // inputImage.value = null;
+                $('#myModal').modal("show");
+              } else {
+                window.alert('Please choose an image file.');
+              }
+            }
+          };
+        } else {
+          inputImage.disabled = true;
+          inputImage.parentNode.className += ' disabled';
+        }
+      };
+    </script>
+    <!-- JS for Cropper cropping Ends -->
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<!-- HTML code for form element and preview image element -->
+<div class="form_box">
+  <h1>Preview Selected Image</h1>
+
+  <%= form_for(:attachment, :url => cropper_create_path) do |f| %>
+
+    <div class="form-group">
+      <%= f.label :image %>
+      <%= f.file_field :attachment, class: 'fileinput', id: "image" %>
+    </div>
+
+    <div class="form-group">
+      <input type="hidden" size="4" id="xc" name="xc" />
+      <input type="hidden" size="4" id="yc" name="yc" />
+      <input type="hidden" size="4" id="wc" name="wc" />
+      <input type="hidden" size="4" id="hc" name="hc" />
+      <!-- <input id="updated_url" type="hidden" name="image_url" value=""> -->
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <!-- <img id="target" src="/assets/2222.jpg" class="img-responsive" /> -->
+            <div class="preview_box_cropper" id="preview_boxId_cropper" style="width: 100%; height: 350px; left: 0px !important; top: 0px !important;">
+              	<img id="preview_img_cropper" src="" class="img-responsive imagetagCropper" style="width: 100%; height: 450px; left: 0px !important; top: 0px !important; /">
+              	<!-- This is the form that our event handler fills -->
+              
+	            </div>
+	          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Crop Image</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="docs-preview clearfix">
+        <div class="img-preview" style="width: 200px; height: 200px;"></div>
+    </div>
+    <%= f.submit 'Submit', class: 'btn btn-primary', onclick: "update_image_url(this)" %>
+  <% end %>
+</div>
+
+<% @attachments.each do |attachment| %>
+  <%= link_to attachment.attachment.url, class: "single-gallery" do %>
+    <%= image_tag(attachment.attachment.url, class: 'grid-item') %>
+    <%= attachment.attachment.url %>
+  <% end %>
+<% end %>
